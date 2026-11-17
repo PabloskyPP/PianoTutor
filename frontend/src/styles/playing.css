@@ -1,0 +1,29 @@
+
+:root{--bg:#161a24;--panel:#1f2432;--ink:#e9e6df;--mute:#8d93a5;--paper:#f4efe4;--staff:#2a2f3d;--ok:#2fa58a;--next:#e8a53a;--bad:#d9534f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 16px 40px}
+main{width:100%;max-width:980px}
+h1{font:600 28px Palatino,"Palatino Linotype",Georgia,serif;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 18px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+select,button{background:var(--panel);color:var(--ink);border:1px solid #343b50;border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+button:hover,select:hover{border-color:var(--next)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--next);outline-offset:2px}
+button.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.stats{margin-left:auto;display:flex;gap:18px;color:var(--mute)}
+.stats b{color:var(--ink);font-weight:600}
+.score{background:var(--paper);border-radius:10px;padding:6px 0;position:relative}
+canvas{width:100%;height:210px;display:block}
+.now{position:absolute;right:16px;top:10px;color:#3a3326;font:600 34px Palatino,Georgia,serif}
+.msg{min-height:26px;margin:12px 0;color:var(--next);font-weight:600}
+.kb{position:relative;height:200px;user-select:none;touch-action:none}
+.w,.b{position:absolute;top:0;cursor:pointer;transition:background .12s}
+.w{background:#f7f4ec;border:1px solid #bdb8a9;border-radius:0 0 6px 6px;height:100%}
+.b{background:#14161c;height:62%;z-index:2;border-radius:0 0 4px 4px}
+.w.next{background:var(--next)}.b.next{background:#b57812}
+.w.ok{background:#7fd9bf}.b.ok{background:var(--ok)}
+.w.bad{background:#f0a19e}.b.bad{background:var(--bad)}
+.w.next::after,.b.next::after{content:attr(data-n);position:absolute;bottom:8px;left:0;right:0;text-align:center;font:600 12px system-ui;color:#2a1f06}
+.b.next::after{color:#fff;bottom:auto;top:8px}
+.help{color:var(--mute);margin-top:16px;font-size:13px}
+.help kbd{background:var(--panel);border:1px solid #343b50;border-radius:4px;padding:0 5px}

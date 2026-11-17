@@ -1,0 +1,20 @@
+/* Ampliaciones sobre playing.css (que es el CSS original). Misma paleta: --bg, --panel, --ink, --mute, --ok, --next, --bad. */
+main.menu,main.page{width:100%;max-width:980px}
+h2{font:600 20px Palatino,"Palatino Linotype",Georgia,serif;margin:0 0 4px}
+button:disabled{opacity:.5;cursor:not-allowed}button:disabled:hover{border-color:#343b50}
+button.primary{background:var(--next);border-color:var(--next);color:#2a1f06;font-weight:600}
+input{background:var(--panel);color:var(--ink);border:1px solid #343b50;border-radius:8px;padding:8px 12px;font:inherit;min-width:260px}
+input:focus-visible{outline:2px solid var(--next);outline-offset:2px}
+.menu-list{display:flex;flex-direction:column;gap:12px;margin-top:22px;max-width:520px}
+.menu-item{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;padding:16px 20px;border-radius:10px}
+.menu-item b{font:600 18px Palatino,Georgia,serif}.menu-item span{color:var(--mute);font-size:13px}
+table.cat{width:100%;border-collapse:collapse;background:var(--panel);border-radius:10px;overflow:hidden}
+table.cat th,table.cat td{padding:10px 14px;text-align:left;border-bottom:1px solid #2c3347}
+table.cat th{color:var(--mute);font-weight:600;font-size:13px}
+table.cat tr.sel td{background:#252b3c}table.cat tr.detail td{background:#252b3c;padding:4px 14px 16px}
+button.link{background:none;border:0;padding:0;color:var(--ink);font-weight:600;text-align:left}
+button.link:hover{color:var(--next)}
+.card .meta{color:var(--mute);margin:2px 0 10px}
+.notice{padding:10px 14px;border-radius:8px;margin:0 0 12px;border:1px solid #343b50;background:var(--panel)}
+.notice.ok{border-color:var(--ok);color:#7fd9bf}.notice.bad{border-color:var(--bad);color:#f0a19e}.notice.warn{border-color:var(--next);color:var(--next)}
+.notice ul{margin:6px 0 0;padding-left:18px;color:var(--ink)}

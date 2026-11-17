@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Piano Tutor</title>
+<style>
+:root{--bg:#161a24;--panel:#1f2432;--ink:#e9e6df;--mute:#8d93a5;--paper:#f4efe4;--staff:#2a2f3d;--ok:#2fa58a;--next:#e8a53a;--bad:#d9534f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 16px 40px}
+main{width:100%;max-width:980px}
+h1{font:600 28px Palatino,"Palatino Linotype",Georgia,serif;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 18px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+select,button{background:var(--panel);color:var(--ink);border:1px solid #343b50;border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+button:hover,select:hover{border-color:var(--next)}
+button:focus-visible,select:focus-visible{outline:2px solid var(--next);outline-offset:2px}
+button.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.stats{margin-left:auto;display:flex;gap:18px;color:var(--mute)}
+.stats b{color:var(--ink);font-weight:600}
+.score{background:var(--paper);border-radius:10px;padding:6px 0;position:relative}
+canvas{width:100%;height:210px;display:block}
+.now{position:absolute;right:16px;top:10px;color:#3a3326;font:600 34px Palatino,Georgia,serif}
+.msg{min-height:26px;margin:12px 0;color:var(--next);font-weight:600}
+.kb{position:relative;height:200px;user-select:none;touch-action:none}
+.w,.b{position:absolute;top:0;cursor:pointer;transition:background .12s}
+.w{background:#f7f4ec;border:1px solid #bdb8a9;border-radius:0 0 6px 6px;height:100%}
+.b{background:#14161c;height:62%;z-index:2;border-radius:0 0 4px 4px}
+.w.next{background:var(--next)}.b.next{background:#b57812}
+.w.ok{background:#7fd9bf}.b.ok{background:var(--ok)}
+.w.bad{background:#f0a19e}.b.bad{background:var(--bad)}
+.w.next::after,.b.next::after{content:attr(data-n);position:absolute;bottom:8px;left:0;right:0;text-align:center;font:600 12px system-ui;color:#2a1f06}
+.b.next::after{color:#fff;bottom:auto;top:8px}
+.help{color:var(--mute);margin-top:16px;font-size:13px}
+.help kbd{background:var(--panel);border:1px solid #343b50;border-radius:4px;padding:0 5px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Piano Tutor</h1>
+  <p class="sub">Toca la nota resaltada para avanzar por la partitura. Funciona con teclado MIDI, micrófono (piano acústico) o el teclado del ordenador.</p>
+  <div class="bar">
+    <select id="song" aria-label="Canción"></select>
+    <button id="restart">Reiniciar</button>
+    <button id="mic">Activar micrófono</button>
+    <span class="stats">Aciertos <b id="hits">0</b> Fallos <b id="miss">0</b> Progreso <b id="prog">0%</b></span>
+  </div>
+  <div class="score"><canvas id="cv"></canvas><div class="now" id="now"></div></div>
+  <div class="msg" id="msg"></div>
+  <div class="kb" id="kb"></div>
+  <p class="help" id="inp">Teclado MIDI: buscando…</p>
+  <p class="help">Teclado del ordenador: <kbd>A W S E D F T G Y H U J K O L P</kbd> = Do central a Mi (octava superior). También puedes hacer clic en las teclas. Con el micrófono se acepta la nota en cualquier octava.</p>
+</main>
+<script>
+const NAMES=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'];
+const LET={C:0,D:1,E:2,F:3,G:4,A:5,B:6},SEMI={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const SONGS={
+ 'Oda a la alegría (Beethoven)':'E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4 D4 D4 E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4 C4 C4',
+ 'Estrellita, ¿dónde estás?':'C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4 G4 G4 F4 F4 E4 E4 D4 G4 G4 F4 F4 E4 E4 D4 C4 C4 G4 G4 A4 A4 G4 F4 F4 E4 E4 D4 D4 C4',
+ 'Para Elisa (inicio, Beethoven)':'E5 D#5 E5 D#5 E5 B4 D5 C5 A4 C4 E4 A4 B4 E4 G#4 B4 C5 E5 D#5 E5 D#5 E5 B4 D5 C5 A4',
+ 'Jingle Bells (estribillo)':'E4 E4 E4 E4 E4 E4 E4 G4 C4 D4 E4 F4 F4 F4 F4 F4 E4 E4 E4 E4 D4 D4 E4 D4 G4'
+};
+const parse=s=>s.split(' ').map(n=>{const m=n.match(/^([A-G])(#?)(\d)$/),o=+m[3];return{midi:12*(o+1)+SEMI[m[1]]+(m[2]?1:0),step:o*7+LET[m[1]],sharp:!!m[2]}});
+const $=id=>document.getElementById(id);
+let notes=[],pos=0,hits=0,miss=0,view=0,micMode=false;
+
+// Teclado en pantalla (Do4 a Do6)
+const LO=60,HI=84,keys={},kb=$('kb');
+const isBlack=m=>[1,3,6,8,10].includes(m%12);
+const nWhite=[...Array(HI-LO+1)].filter((_,i)=>!isBlack(LO+i)).length,ww=100/nWhite;
+let wi=0;
+for(let m=LO;m<=HI;m++){
+  const d=document.createElement('div');d.dataset.m=m;d.dataset.n=NAMES[m%12];
+  if(isBlack(m)){d.className='b';d.style.left=(wi*ww-ww*.3)+'%';d.style.width=ww*.6+'%'}
+  else{d.className='w';d.style.left=wi*ww+'%';d.style.width=ww+'%';wi++}
+  kb.appendChild(d);keys[m]=d;
+}
+const flash=(m,c)=>{const k=keys[m];if(!k)return;k.classList.add(c);setTimeout(()=>k.classList.remove(c),180)};
+
+// Sonido simple para teclado del ordenador y clics
+let ac;
+function tone(m){
+  ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();
+  o.type='triangle';o.frequency.value=440*2**((m-69)/12);
+  g.gain.setValueAtTime(.3,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+1.2);
+  o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+1.2);
+}
+
+// Lógica del modo espera
+function load(name){
+  notes=parse(SONGS[name]);pos=0;hits=0;miss=0;view=0;
+  $('msg').textContent='';refresh();
+}
+function refresh(){
+  Object.values(keys).forEach(k=>k.classList.remove('next'));
+  const t=notes[pos];
+  if(t){keys[t.midi]&&keys[t.midi].classList.add('next');$('now').textContent=NAMES[t.midi%12]}
+  else $('now').textContent='';
+  $('hits').textContent=hits;$('miss').textContent=miss;
+  $('prog').textContent=Math.round(pos/notes.length*100)+'%';
+}
+function play(midi,src){
+  const t=notes[pos];if(!t)return;
+  const ok=src==='mic'?midi%12===t.midi%12:midi===t.midi;
+  if(ok){hits++;pos++;flash(midi,'ok');
+    if(pos>=notes.length){const acc=Math.round(hits/(hits+miss)*100);
+      $('msg').textContent=`¡Canción completada! Precisión: ${acc}% (${miss} fallos).`}}
+  else if(src!=='mic'){miss++;flash(midi,'bad')}
+  refresh();
+}
+
+// Entrada: ratón, teclado del ordenador, MIDI
+kb.addEventListener('pointerdown',e=>{const m=+e.target.dataset.m;if(m){tone(m);play(m,'click')}});
+const MAP='awsedftgyhujkolp';
+addEventListener('keydown',e=>{
+  if(e.repeat||e.ctrlKey||e.metaKey||e.target.tagName==='SELECT')return;
+  const i=MAP.indexOf(e.key.toLowerCase());
+  if(i>=0){const m=60+i;tone(m);play(m,'key')}
+});
+function bindMidi(a){
+  const ins=[...a.inputs.values()];
+  ins.forEach(i=>i.onmidimessage=e=>{
+    const [s,n,v]=e.data;
+    if((s&0xf0)===0x90&&v>0)play(n,'midi');
+  });
+  $('inp').textContent=ins.length?'Teclado MIDI conectado: '+ins.map(i=>i.name).join(', '):'No se detecta ningún teclado MIDI. Conéctalo por USB o usa el micrófono.';
+}
+if(navigator.requestMIDIAccess){
+  navigator.requestMIDIAccess().then(a=>{bindMidi(a);a.onstatechange=()=>bindMidi(a)})
+   .catch(()=>$('inp').textContent='Acceso MIDI denegado. Usa el micrófono o el teclado del ordenador.');
+}else $('inp').textContent='Este navegador no admite MIDI (usa Chrome o Edge). Puedes usar el micrófono.';
+
+// Micrófono: detección de nota por autocorrelación
+$('mic').onclick=async()=>{
+  if(micMode)return;
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const ctx=new AudioContext(),an=ctx.createAnalyser();an.fftSize=4096;
+    ctx.createMediaStreamSource(stream).connect(an);
+    micMode=true;$('mic').classList.add('on');$('mic').textContent='Micrófono activo';
+    const buf=new Float32Array(2048),sr=ctx.sampleRate;
+    let last=-1,count=0,block=0,blockT=0;
+    setInterval(()=>{
+      an.getFloatTimeDomainData(buf);
+      const m=pitch(buf,sr);
+      if(m<0){last=-1;count=0;if(performance.now()-blockT>150)block=0;return}
+      count=m===last?count+1:1;last=m;
+      if(count>=2&&!(block===m%12&&performance.now()-blockT<600)){
+        const t=notes[pos];
+        if(t&&m%12===t.midi%12){block=m%12;blockT=performance.now();play(m,'mic')}
+      }
+    },40);
+  }catch(e){$('msg').textContent='No se pudo acceder al micrófono. Revisa los permisos del navegador.'}
+};
+function pitch(b,sr){
+  let r=0;for(const x of b)r+=x*x;
+  if(Math.sqrt(r/b.length)<.012)return -1;
+  const lo=Math.floor(sr/1100),hi=Math.floor(sr/200),c=[];
+  for(let l=lo;l<=hi;l++){let s=0,e=0;for(let i=0;i<b.length-hi;i++){s+=b[i]*b[i+l];e+=b[i]*b[i]}c[l]=s/(e||1)}
+  let mx=0;for(let l=lo;l<=hi;l++)if(c[l]>mx)mx=c[l];
+  if(mx<.5)return -1;
+  for(let l=lo+1;l<hi;l++)if(c[l]>=mx*.9&&c[l]>c[l-1]&&c[l]>=c[l+1])return Math.round(69+12*Math.log2(sr/l/440));
+  return -1;
+}
+
+// Partitura (pentagrama en clave de Sol)
+const cv=$('cv'),g=cv.getContext('2d'),BASE=150,GAP=50;
+function draw(){
+  const dpr=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;
+  if(cv.width!==W*dpr){cv.width=W*dpr;cv.height=H*dpr}
+  g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+  view+=(pos-view)*.15;
+  const y=s=>BASE-(s-30)*7;
+  g.strokeStyle='#2a2f3d';g.lineWidth=1.3;
+  for(let k=0;k<5;k++){g.beginPath();g.moveTo(0,y(30+k*2));g.lineTo(W,y(30+k*2));g.stroke()}
+  g.fillStyle='#2a2f3d';g.font='84px "Segoe UI Symbol","Noto Music","Apple Symbols",serif';g.fillText('𝄞',10,BASE-4);
+  const cx=150;
+  notes.forEach((n,i)=>{
+    const x=cx+(i-view)*GAP;if(x<85||x>W+20)return;
+    const col=i<pos?'#2fa58a':i===pos?'#d98a12':'#2a2f3d';
+    g.strokeStyle='#2a2f3d';g.lineWidth=1.3;
+    for(let s=28;s>=n.step;s-=2){g.beginPath();g.moveTo(x-13,y(s));g.lineTo(x+13,y(s));g.stroke()}
+    for(let s=40;s<=n.step;s+=2){g.beginPath();g.moveTo(x-13,y(s));g.lineTo(x+13,y(s));g.stroke()}
+    const ny=y(n.step),up=n.step<34;
+    g.fillStyle=g.strokeStyle=col;
+    g.beginPath();g.ellipse(x,ny,8.5,6,-.35,0,7);g.fill();
+    g.lineWidth=1.8;g.beginPath();
+    if(up){g.moveTo(x+8,ny-1);g.lineTo(x+8,ny-38)}else{g.moveTo(x-8,ny+1);g.lineTo(x-8,ny+38)}
+    g.stroke();
+    if(n.sharp){g.font='22px serif';g.fillText('♯',x-30,ny+7)}
+    if(i===pos){g.strokeStyle='rgba(217,138,18,.35)';g.lineWidth=2;g.beginPath();g.arc(x,ny,17,0,7);g.stroke()}
+  });
+  requestAnimationFrame(draw);
+}
+
+// Arranque
+const sel=$('song');
+Object.keys(SONGS).forEach(n=>sel.add(new Option(n,n)));
+sel.onchange=()=>{load(sel.value);sel.blur()};
+$('restart').onclick=()=>load(sel.value);
+load(sel.value);draw();
+</script>
+</body>
+</html>

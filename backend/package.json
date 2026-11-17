@@ -1,0 +1,1 @@
+{"name":"@pianotutor/backend","version":"0.1.0","private":true,"type":"module","dependencies":{"@fastify/static":"10.1.11","fastify":"5.12.8"}}
