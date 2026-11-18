@@ -7,6 +7,7 @@ export interface PlayingViewProps {
   hits: number; miss: number; progress: number;
   now: string; msg: string;
   micOn: boolean; inputText: string;
+  lo?: number; hi?: number;
   next: ReadonlySet<number>; flashes: Readonly<Record<number, KeyFlash>>;
   canvasRef?: Ref<HTMLCanvasElement>; kbRef?: Ref<HTMLDivElement>;
   onSelect?: (id: string) => void; onRestart?: () => void; onMic?: () => void;
@@ -35,7 +36,7 @@ export function PlayingView(p: PlayingViewProps) {
       </div>
       <div className="score"><canvas id="cv" ref={p.canvasRef} role="img" aria-label="Partitura: la nota resaltada es la siguiente a tocar" /><div className="now" id="now">{p.now}</div></div>
       <div className="msg" id="msg" aria-live="polite">{p.msg}</div>
-      <PianoKeyboard next={p.next} flashes={p.flashes} kbRef={p.kbRef} />
+      <PianoKeyboard {...(p.lo !== undefined ? { lo: p.lo } : {})} {...(p.hi !== undefined ? { hi: p.hi } : {})} next={p.next} flashes={p.flashes} kbRef={p.kbRef} />
       <p className="help" id="inp">{p.inputText}</p>
       <p className="help">Teclado del ordenador: <kbd>A W S E D F T G Y H U J K O L P</kbd> = Do central a Re♯ (octava superior). También puedes hacer clic en las teclas. Con el micrófono se acepta la nota en cualquier octava. Pulsa de nuevo «Micrófono activo» para desactivarlo.</p>
     </main>

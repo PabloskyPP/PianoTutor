@@ -8,7 +8,7 @@ export function MenuPage() {
       <p className="sub">Aprende, practica y compón al piano.</p>
       <nav className="menu-list" aria-label="Menú principal">
         <button className="menu-item" onClick={() => navigate('/catalog')}><b>Catálogo de canciones</b><span>Elige una canción y tócala</span></button>
-        <button className="menu-item" disabled><b>Añadir una nueva canción</b><span>Importar MusicXML o MIDI · disponible en la Fase 2</span></button>
+        <button className="menu-item" onClick={() => navigate('/add')}><b>Añadir una nueva canción</b><span>Importa un archivo MusicXML o MIDI</span></button>
         <button className="menu-item" disabled><b>Componer una melodía propia</b><span>Editor de partituras · disponible en la Fase 5</span></button>
       </nav>
     </main>

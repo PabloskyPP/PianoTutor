@@ -40,6 +40,7 @@ export const eventSchema = z.object({
   if (!want(e.pitches.length)) ctx.addIssue({ code: 'custom', message: `El evento ${e.id} de tipo ${e.type} tiene ${e.pitches.length} alturas` });
 });
 
+/** `index` es GLOBAL en la canción (0 = pentagrama superior), único aunque haya varias partes. */
 export const staffSchema = z.object({
   index: z.number().int().min(0),
   clef: z.enum(['G', 'F', 'C']),
@@ -74,6 +75,7 @@ export const songSchema = z.object({
   source: z.object({
     kind: z.enum(['musicxml', 'mxl', 'midi']), fileName: z.string(), storedAs: z.string(),
     originalPpq: z.number().int().positive().optional(), importReport: z.array(importIssueSchema),
+    importOptions: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
   }).optional(),
   provisional: z.object({ metadata: z.boolean().optional(), rhythm: z.boolean().optional(), note: z.string() }).optional(),
 }).superRefine((song, ctx) => {

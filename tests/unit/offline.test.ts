@@ -17,3 +17,11 @@ describe.skipIf(!fs.existsSync(path.join(dist, 'index.html')))('build sin depend
     expect(walk(dist).some((f) => /noto-music.*\.woff2$/.test(f))).toBe(true);
   });
 });
+
+describe.skipIf(!fs.existsSync(path.join(dist, 'index.html')))('build: fuentes de VexFlow incrustadas', () => {
+  it('el fragmento de «Añadir canción» incluye la fuente musical como data: URL y no hace peticiones a hosts externos', () => {
+    const chunk = walk(dist).find((f) => /AddSong-.*\.js$/.test(f)); expect(chunk, 'existe el fragmento diferido').toBeTruthy();
+    const js = fs.readFileSync(chunk!, 'utf8');
+    expect(js).toContain('data:font/woff2'); expect(js).not.toMatch(/fetch\(\s*["'`]https?:/); expect(js).not.toMatch(/<script[^>]+src=["']https?:/);
+  });
+});

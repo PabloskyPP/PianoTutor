@@ -6,6 +6,7 @@ import { LibraryRepository } from './library/repository';
 import { LibraryError } from './library/errors';
 import { writeFileAtomic } from './library/atomic';
 import { MAX_BODY_BYTES, type Settings } from './config';
+import { previewImport, prepareImport } from './library/importService';
 
 export interface AppDeps {
   repo: LibraryRepository;
@@ -51,6 +52,16 @@ export async function createApp(deps: AppDeps): Promise<FastifyInstance> {
   app.post<{ Params: { id: string }; Body: { title?: unknown } }>('/api/songs/:id/save-as', async (req, reply) => {
     const song = await deps.repo.saveAs(req.params.id, (req.body as { title?: unknown } | undefined)?.title);
     return reply.code(201).send(song);
+  });
+
+  // Importación: el cuerpo es el archivo en bruto; el servidor lo analiza (la misma ruta de código en previsualizar y guardar).
+  app.addContentTypeParser('application/octet-stream', { parseAs: 'buffer', bodyLimit: MAX_BODY_BYTES }, (_req, body, done) => done(null, body));
+  const fileBody = (b: unknown): Uint8Array => { if (!(b instanceof Uint8Array) || b.length === 0) throw new LibraryError('INVALID', 'No se recibió ningún archivo (el cuerpo debe enviarse como application/octet-stream).'); return b; };
+  app.post('/api/import/preview', async (req) => previewImport(fileBody(req.body), req.query));
+  app.post('/api/import', async (req, reply) => {
+    const bytes = fileBody(req.body);
+    const { song, ext } = prepareImport(bytes, req.query);
+    return reply.code(201).send(await deps.repo.createImported(song, bytes, ext));
   });
 
   // Ajustes: el navegador solo elige entre raíces ya autorizadas, por índice; nunca envía rutas.

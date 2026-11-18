@@ -19,3 +19,8 @@ Un solo `AudioContext` (`audio/engine.ts`), compartido por el sintetizador y el 
 
 ## Persistencia
 Ver `DATA_MODEL.md` y la sección de almacenamiento del README.
+
+## Importación y partitura (Fase 2)
+- El **servidor** analiza los archivos (`shared/import`), tanto en la previsualización como al guardar: el navegador nunca envía una canción ya construida, y el análisis no bloquea la interfaz (sí puede bloquear brevemente el servidor con archivos muy grandes).
+- `score/toVexSpec.ts` (puro, probado en Node) convierte el modelo en una especificación de dibujo; `score/VexScore.tsx` la dibuja con VexFlow. **Playing sigue usando el renderer canvas portado del original**, no VexFlow.
+- La página «Añadir canción» se carga de forma diferida (VexFlow pesa ~0,8 MB) para no penalizar a Playing.

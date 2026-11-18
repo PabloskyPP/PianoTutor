@@ -139,6 +139,26 @@ export class LibraryRepository {
     return v.song;
   }
 
+  /** Guarda una canción importada junto con el archivo original (data/imports/<id>/original.<ext>). Si algo falla, no queda nada a medias. */
+  async createImported(song: Song, original: Uint8Array, ext: string): Promise<Song> {
+    if (song.origin !== 'imported') throw new LibraryError('INVALID', 'Solo se pueden crear canciones importadas por esta vía.');
+    assertValidId(song.id);
+    const v = validateSong(song);
+    if (!v.ok) throw new LibraryError('INVALID', 'La canción no es válida.', v.errors);
+    const dir = resolveInside(this.root, 'imports', song.id);
+    const origFile = resolveInside(this.root, 'imports', song.id, `original${ext}`);
+    try {
+      await fs.promises.mkdir(dir, { recursive: true });
+      await writeFileAtomic(origFile, Buffer.from(original), this.opts.atomic);
+      await writeFileAtomic(this.fileFor(v.song), JSON.stringify(v.song, null, 2) + '\n', this.opts.atomic);
+      return v.song;
+    } catch (e) {
+      await fs.promises.rm(dir, { recursive: true, force: true }).catch(() => {});
+      await fs.promises.rm(this.fileFor(v.song), { force: true }).catch(() => {});
+      throw ioError(e, 'guardar la canción importada');
+    }
+  }
+
   private async backup(prev: Song, file: string) {
     try {
       const dir = resolveInside(this.root, 'backups', prev.id);

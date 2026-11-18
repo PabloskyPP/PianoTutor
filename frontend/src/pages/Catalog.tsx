@@ -1,28 +1,65 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
-import type { SongSummary } from '@pianotutor/shared';
+import { DEFAULT_FILTERS, distinctGenres, filterSongs, type CatalogFilters, type SongSummary } from '@pianotutor/shared';
 import { api, type ListResponse } from '../api/client';
 import { navigate } from '../app/router';
 
-const collator = new Intl.Collator('es', { sensitivity: 'base' });
 const ORIGIN: Record<SongSummary['origin'], string> = { preloaded: 'Precargada', imported: 'Importada', composed: 'Propia' };
+const DIFFS = Array.from({ length: 10 }, (_, i) => i + 1);
 
 export function CatalogPage() {
   const [data, setData] = useState<ListResponse | null>(null);
   const [error, setError] = useState('');
   const [sel, setSel] = useState<string | null>(null);
   const [status, setStatus] = useState('');
+  const [typed, setTyped] = useState('');                       // texto escrito (se aplica al pulsar «Buscar»)
+  const [filters, setFilters] = useState<CatalogFilters>(DEFAULT_FILTERS);
 
   const load = useCallback(async () => {
     try { setData(await api.listSongs()); setError(''); } catch (e) { setError((e as Error).message); }
   }, []);
   useEffect(() => { void load(); }, [load]);
 
-  const rows = useMemo(() => [...(data?.songs ?? [])].sort((a, b) => collator.compare(a.title, b.title)), [data]);
+  const all = data?.songs ?? [];
+  const rows = useMemo(() => filterSongs(all, filters), [all, filters]);
+  const genres = useMemo(() => distinctGenres(all), [all]);
+  const set = (p: Partial<CatalogFilters>) => setFilters((f) => ({ ...f, ...p }));
+  const filtersActive = filters.genre !== '' || filters.minDifficulty !== 1 || filters.maxDifficulty !== 10 || filters.hands !== 'all' || filters.own !== 'all';
 
   return (
     <main className="page">
       <div className="bar"><button onClick={() => navigate('/')}>← Menú principal</button></div>
       <h1>Catálogo de canciones</h1>
+
+      <form className="search" role="search" onSubmit={(e) => { e.preventDefault(); set({ query: typed }); }}>
+        <input type="search" aria-label="Buscar por título" placeholder="Buscar por título…" value={typed} onChange={(e) => setTyped(e.target.value)} />
+        <button type="submit" className="primary">Buscar</button>
+        <button type="button" onClick={() => { setTyped(''); set({ query: '' }); }} disabled={!typed && !filters.query}>Limpiar búsqueda</button>
+      </form>
+      <div className="filters" role="group" aria-label="Filtros">
+        <label>Género
+          <select value={filters.genre} onChange={(e) => set({ genre: e.target.value })}>
+            <option value="">Todos</option>{genres.map((g) => <option key={g} value={g}>{g}</option>)}
+          </select>
+        </label>
+        <label>Dificultad desde
+          <select value={filters.minDifficulty} onChange={(e) => set({ minDifficulty: Number(e.target.value) })}>{DIFFS.map((d) => <option key={d} value={d}>{d}</option>)}</select>
+        </label>
+        <label>hasta
+          <select value={filters.maxDifficulty} onChange={(e) => set({ maxDifficulty: Number(e.target.value) })}>{DIFFS.map((d) => <option key={d} value={d}>{d}</option>)}</select>
+        </label>
+        <label>Manos
+          <select value={String(filters.hands)} onChange={(e) => set({ hands: e.target.value === 'all' ? 'all' : (Number(e.target.value) as 1 | 2) })}>
+            <option value="all">Todas</option><option value="1">A una mano</option><option value="2">A dos manos</option>
+          </select>
+        </label>
+        <label>Propias
+          <select value={filters.own} onChange={(e) => set({ own: e.target.value as CatalogFilters['own'] })}>
+            <option value="all">Todas</option><option value="own">Solo composiciones propias</option><option value="notOwn">Solo canciones no propias</option>
+          </select>
+        </label>
+        {filtersActive && <button onClick={() => set({ genre: '', minDifficulty: 1, maxDifficulty: 10, hands: 'all', own: 'all' })}>Quitar filtros</button>}
+      </div>
+
       {error && <div className="notice bad" role="alert">{error} <button onClick={() => void load()}>Reintentar</button></div>}
       {status && <div className="notice ok" role="status">{status}</div>}
       {data?.errors.length ? (
@@ -31,7 +68,9 @@ export function CatalogPage() {
           <ul>{data.errors.map((e) => <li key={e.file}><code>{e.file}</code>: {e.message}</li>)}</ul>
         </div>
       ) : null}
-      {data && rows.length === 0 && !error && <p className="sub">La biblioteca está vacía.</p>}
+      {data && all.length === 0 && !error && <p className="sub">La biblioteca está vacía. Añade una canción desde el menú principal.</p>}
+      {data && all.length > 0 && <p className="sub" aria-live="polite">{rows.length === all.length ? `${all.length} canciones` : `${rows.length} de ${all.length} canciones`}</p>}
+      {data && all.length > 0 && rows.length === 0 && <div className="notice" role="status">No hay canciones que coincidan con la búsqueda y los filtros.</div>}
       {rows.length > 0 && (
         <table className="cat">
           <thead><tr><th>Título</th><th>Género</th><th>Manos</th><th>Dificultad</th></tr></thead>

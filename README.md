@@ -2,7 +2,7 @@
 
 Aplicación local para aprender piano: eliges una canción, la partitura te muestra la siguiente nota y avanzas tocándola con un teclado MIDI, un piano acústico (micrófono), el teclado del ordenador o el piano en pantalla.
 
-**Estado: Fase 1 de 7** (migración y estructura base). Ver `PROJECT_STATUS.md`.
+**Estado: Fase 2 de 7** (catálogo, importación MusicXML/MIDI y previsualización). Ver `PROJECT_STATUS.md`.
 
 ## Requisitos
 - **Node.js 20 o superior** (probado con Node 22). Descarga: https://nodejs.org
@@ -24,11 +24,13 @@ Compila la interfaz si hace falta, arranca el servidor local en `http://127.0.0.
 
 Desarrollo con recarga: `npm run dev` (Vite en http://localhost:5173).
 
-## Qué puedes hacer en la Fase 1
-- **Catálogo**: las 4 canciones originales, ordenadas alfabéticamente. Clic en una fila → «Tocar esta canción».
+## Qué puedes hacer en la Fase 2
+- **Catálogo**: ordenado alfabéticamente (español). Buscador por título (sin distinguir mayúsculas ni acentos) y filtros combinables: género, dificultad (rango 1–10), manos y propias. Clic en una fila → «Tocar esta canción».
+- **Añadir una nueva canción**: importa MusicXML (`.musicxml`, `.xml`, `.mxl`) o MIDI (`.mid`, `.midi`), revisa la previsualización y el informe de importación, y guarda. Ver `docs/IMPORT.md` para lo que se conserva, lo que se avisa y las limitaciones. Ficheros de prueba sintéticos en `tests/fixtures/`.
+- **Playing** toca las canciones importadas **de una mano y sin acordes**; las de dos manos o con acordes se guardan y se ven, pero se tocan en la Fase 3.
 - **Playing**: igual que el programa original (piano, partitura, contadores, nota siguiente en naranja, micrófono, MIDI, teclado del ordenador). Nuevos: botones «← Menú» y «Catálogo»; el micrófono se puede **desactivar** pulsando de nuevo «Micrófono activo».
 - **Guardar como copia propia** (en la tarjeta de cada canción): crea una copia en `data/compositions/`. Las canciones precargadas son de solo lectura.
-- *Añadir canción* (Fase 2) y *Componer* (Fase 5) aparecen en el menú pero deshabilitadas.
+- *Componer* (Fase 5) aparece en el menú pero deshabilitada.
 
 ## Carpetas
 ```
@@ -54,17 +56,10 @@ Pulsa «Activar micrófono» y acepta el permiso. **Limitaciones de la Fase 1 (d
 
 ## Pruebas
 ```
-npm test          # 97 pruebas automáticas
+npm test          # 197 pruebas automáticas
 npm run typecheck
 ```
 Las pruebas con hardware real están en `docs/MANUAL_TESTS.md`.
-
-Actualmente estas pruebas devuelven:
- Test Files  1 failed | 6 passed | 1 skipped (8)
-      Tests  72 passed | 3 skipped (75)
-     Errors  2 errors
-   Start at  00:00:35
-   Duration  8.48s (import 38%, tests 34%, transform 27%, worker 1%)
 
 ## Problemas frecuentes
 - *«Faltan las dependencias»* → ejecuta `npm install`.

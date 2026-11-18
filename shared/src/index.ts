@@ -5,3 +5,6 @@ export * from './projection/toPerformance';
 export * from './evaluation/learning';
 export * from './legacy/songs';
 export * from './legacy/migrate';
+export * from './notation/durations';
+export * from './catalog/filter';
+export * from './import/index';

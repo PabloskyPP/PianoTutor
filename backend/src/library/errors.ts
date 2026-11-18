@@ -1,5 +1,5 @@
-export type LibraryErrorCode = 'NOT_FOUND' | 'INVALID' | 'CONFLICT' | 'READ_ONLY' | 'FORBIDDEN' | 'IO' | 'LOCKED';
-const HTTP: Record<LibraryErrorCode, number> = { NOT_FOUND: 404, INVALID: 400, CONFLICT: 409, READ_ONLY: 403, FORBIDDEN: 403, IO: 500, LOCKED: 500 };
+export type LibraryErrorCode = 'NOT_FOUND' | 'INVALID' | 'CONFLICT' | 'READ_ONLY' | 'FORBIDDEN' | 'IO' | 'LOCKED' | 'IMPORT_FAILED';
+const HTTP: Record<LibraryErrorCode, number> = { NOT_FOUND: 404, INVALID: 400, CONFLICT: 409, READ_ONLY: 403, FORBIDDEN: 403, IO: 500, LOCKED: 500, IMPORT_FAILED: 422 };
 
 export class LibraryError extends Error {
   constructor(readonly code: LibraryErrorCode, message: string, readonly details?: string[]) { super(message); }

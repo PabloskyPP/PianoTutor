@@ -20,6 +20,7 @@ export function PlayingPage({ songId }: { songId: string }) {
   const [msg, setMsg] = useState('');
   const [micOn, setMicOn] = useState(false);
   const [inputText, setInputText] = useState('Teclado MIDI: buscando…');
+  const [range, setRange] = useState({ lo: 60, hi: 84 });
   const [flashes, setFlashes] = useState<Record<number, KeyFlash>>({});
   const [, redraw] = useReducer((n: number) => n + 1, 0);
 
@@ -87,6 +88,11 @@ export function PlayingPage({ songId }: { songId: string }) {
         setMsg('Esta canción usa acordes o dos manos; ese modo de interpretación llega en la Fase 3.'); redraw(); return;
       }
       session.current = new LearningSession(events);
+      // El piano cubre al menos Do4–Do6 (como el original) y se amplía por octavas para incluir toda la canción.
+      const ms = events.map((e) => e.midis[0]!), mn = Math.min(...ms), mx = Math.max(...ms);
+      setRange({ lo: Math.min(60, mn - (mn % 12)), hi: Math.max(84, mx % 12 === 0 ? mx : mx + 12 - (mx % 12)) });
+      const steps = events.map((e) => diatonicStep(e.notes[0]!.pitch));
+      if (Math.min(...steps) < 23 || Math.max(...steps) > 50) setMsg('Aviso: hay notas fuera del rango que dibuja la partitura de esta versión; puedes tocarlas igualmente con el piano.');
       renderer.current?.setNotes(events.map((e) => ({ step: diatonicStep(e.notes[0]!.pitch), sharp: e.notes[0]!.pitch.alter === 1 })));
       redraw();
     }).catch((e: Error) => { if (!cancelled) { session.current = null; setSong(null); setMsg(e.message); redraw(); } });
@@ -111,7 +117,7 @@ export function PlayingPage({ songId }: { songId: string }) {
       songs={list.length ? list : song ? [{ id: song.id, title: song.title }] : []} songId={songId}
       hits={s?.hits ?? 0} miss={s?.misses ?? 0} progress={s?.progressPercent ?? 0}
       now={pending.length ? pending.map(noteNameEs).join(' + ') : ''} msg={msg}
-      micOn={micOn} inputText={inputText} next={new Set(pending)} flashes={flashes}
+      lo={range.lo} hi={range.hi} micOn={micOn} inputText={inputText} next={new Set(pending)} flashes={flashes}
       canvasRef={canvas} kbRef={kb}
       onSelect={(id) => navigate(`/play/${encodeURIComponent(id)}`)} onRestart={restart} onMic={toggleMic}
       onMenu={() => navigate('/')} onCatalog={() => navigate('/catalog')}
