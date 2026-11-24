@@ -8,3 +8,6 @@ export * from './legacy/migrate';
 export * from './notation/durations';
 export * from './catalog/filter';
 export * from './import/index';
+export * from './preferences';
+export * from './evaluation/timeline';
+export * from './evaluation/rhythm';

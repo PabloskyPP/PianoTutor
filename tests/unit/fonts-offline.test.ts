@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeAll } from 'vitest';
 const sources: string[] = []; const net: string[] = [];
 beforeAll(() => {
   (globalThis as any).FontFace = class { constructor(public family: string, public src: string) { sources.push(String(src)); } load() { return Promise.resolve(this); } };
-  (document as any).fonts = { add: () => {}, load: () => Promise.resolve([]), ready: Promise.resolve() };
+  (document as any).fonts = { add: () => {}, load: () => Promise.resolve([]), ready: Promise.resolve(), size: 0, status: 'loaded', addEventListener: () => {}, removeEventListener: () => {} };   // FontFaceSet mínimo pero completo
   (globalThis as any).fetch = vi.fn((u: string) => { net.push(String(u)); return Promise.reject(new Error('sin red')); });
   const open = XMLHttpRequest.prototype.open; XMLHttpRequest.prototype.open = function (m: string, u: string | URL, ...r: any[]) { net.push(String(u)); return (open as any).call(this, m, u, ...r); };
   (SVGElement.prototype as any).getBBox = () => ({ x: 0, y: 0, width: 10, height: 10 });

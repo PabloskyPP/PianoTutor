@@ -1,0 +1,53 @@
+/* Ampliaciones sobre playing.css (que es el CSS original). Misma paleta: --bg, --panel, --ink, --mute, --ok, --next, --bad. */
+main.menu,main.page{width:100%;max-width:980px}
+h2{font:600 20px Palatino,"Palatino Linotype",Georgia,serif;margin:0 0 4px}
+button:disabled{opacity:.5;cursor:not-allowed}button:disabled:hover{border-color:#343b50}
+button.primary{background:var(--next);border-color:var(--next);color:#2a1f06;font-weight:600}
+input{background:var(--panel);color:var(--ink);border:1px solid #343b50;border-radius:8px;padding:8px 12px;font:inherit;min-width:260px}
+input:focus-visible{outline:2px solid var(--next);outline-offset:2px}
+.menu-list{display:flex;flex-direction:column;gap:12px;margin-top:22px;max-width:520px}
+.menu-item{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;padding:16px 20px;border-radius:10px}
+.menu-item b{font:600 18px Palatino,Georgia,serif}.menu-item span{color:var(--mute);font-size:13px}
+table.cat{width:100%;border-collapse:collapse;background:var(--panel);border-radius:10px;overflow:hidden}
+table.cat th,table.cat td{padding:10px 14px;text-align:left;border-bottom:1px solid #2c3347}
+table.cat th{color:var(--mute);font-weight:600;font-size:13px}
+table.cat tr.sel td{background:#252b3c}table.cat tr.detail td{background:#252b3c;padding:4px 14px 16px}
+button.link{background:none;border:0;padding:0;color:var(--ink);font-weight:600;text-align:left}
+button.link:hover{color:var(--next)}
+.card .meta{color:var(--mute);margin:2px 0 10px}
+.notice{padding:10px 14px;border-radius:8px;margin:0 0 12px;border:1px solid #343b50;background:var(--panel)}
+.notice.ok{border-color:var(--ok);color:#7fd9bf}.notice.bad{border-color:var(--bad);color:#f0a19e}.notice.warn{border-color:var(--next);color:var(--next)}
+.notice ul{margin:6px 0 0;padding-left:18px;color:var(--ink)}
+h3{font:600 15px system-ui;margin:14px 0 6px;color:var(--mute)}
+select{max-width:100%}
+.panel{background:var(--panel);border-radius:10px;padding:14px 16px;margin:0 0 14px}
+.form{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end}
+.form label,.filters label{display:flex;flex-direction:column;gap:4px;color:var(--mute);font-size:13px}
+.form label.wide{flex:1 1 100%}.form label.wide input{width:100%}
+label.check{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14px}
+label.check input{min-width:0;width:auto}
+label.confirm{margin-top:12px;padding:10px 12px;border:1px solid var(--next);border-radius:8px}
+.search{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+.search input{min-width:min(420px,100%);flex:0 1 420px}
+.filters{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;justify-content:center;margin-bottom:14px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 16px;margin:0 0 12px}
+.stats-grid div{background:#252b3c;border-radius:8px;padding:8px 10px}
+.stats-grid dt{color:var(--mute);font-size:12px}.stats-grid dd{margin:0;font-weight:600}
+.issues{margin:0 0 12px;padding-left:18px}.issues li{margin:3px 0}
+.issues li.warning{color:var(--next)}.issues li.error{color:#f0a19e}.issues li.info{color:var(--mute)}
+.paper{background:var(--paper);border-radius:10px;padding:8px;overflow-x:auto;min-height:60px}
+.pager{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:10px;color:var(--mute)}
+.meta{color:var(--mute);margin:2px 0 10px}
+button.danger{border-color:var(--bad);color:#f0a19e}
+button.danger:hover:not(:disabled){background:#3a2326;border-color:var(--bad)}
+button.danger.solid{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:600}
+.kbscroll{overflow-x:auto;padding-bottom:8px}
+.w.warn{background:#f2d98a}.b.warn{background:#c9a227}
+.score.grand canvas{height:340px}
+details.adv{margin-top:14px;background:var(--panel);border-radius:10px;padding:10px 14px}
+details.adv summary{cursor:pointer;color:var(--mute)}
+.prefs{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end;margin-top:10px}
+.prefs label{display:flex;flex-direction:column;gap:4px;color:var(--mute);font-size:13px}
+.prefs label.check{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14px}
+.prefs input[type=number]{min-width:0;width:90px}.prefs input[type=range]{min-width:0;padding:0;width:140px}
+.stats small{color:var(--mute)}

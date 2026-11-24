@@ -2,7 +2,7 @@
 
 Aplicación local para aprender piano: eliges una canción, la partitura te muestra la siguiente nota y avanzas tocándola con un teclado MIDI, un piano acústico (micrófono), el teclado del ordenador o el piano en pantalla.
 
-**Estado: Fase 2 de 7** (catálogo, importación MusicXML/MIDI y previsualización). Ver `PROJECT_STATUS.md`.
+**Estado: Fase 3 de 7** (motor de interpretación: modos Aprendizaje y Ritmo, dos manos, micrófono nuevo). Ver `PROJECT_STATUS.md`.
 
 ## Requisitos
 - **Node.js 20 o superior** (probado con Node 22). Descarga: https://nodejs.org
@@ -24,10 +24,15 @@ Compila la interfaz si hace falta, arranca el servidor local en `http://127.0.0.
 
 Desarrollo con recarga: `npm run dev` (Vite en http://localhost:5173).
 
-## Qué puedes hacer en la Fase 2
+## Qué puedes hacer en la Fase 3
 - **Catálogo**: ordenado alfabéticamente (español). Buscador por título (sin distinguir mayúsculas ni acentos) y filtros combinables: género, dificultad (rango 1–10), manos y propias. Clic en una fila → «Tocar esta canción».
 - **Añadir una nueva canción**: importa MusicXML (`.musicxml`, `.xml`, `.mxl`) o MIDI (`.mid`, `.midi`), revisa la previsualización y el informe de importación, y guarda. Ver `docs/IMPORT.md` para lo que se conserva, lo que se avisa y las limitaciones. Ficheros de prueba sintéticos en `tests/fixtures/`.
-- **Playing** toca las canciones importadas **de una mano y sin acordes**; las de dos manos o con acordes se guardan y se ven, pero se tocan en la Fase 3.
+- **Eliminar canciones:** en la tarjeta de cada canción, «Eliminar canción» (con confirmación). **No es un borrado definitivo:** la canción y su archivo original se mueven a `data/trash/<fecha>-<id>/`. Las 4 canciones precargadas no se pueden eliminar.
+- **Playing** toca cualquier canción, de una o dos manos y con acordes:
+  - **Aprendizaje:** la partitura espera a que toques la(s) nota(s) resaltada(s); en un acorde basta con tocar todas sus notas, en cualquier orden.
+  - **Ritmo:** pulsa «Empezar»: cuenta previa, metrónomo y la partitura avanza con el tempo; se evalúa altura, momento, omisiones y notas extra (y duración con MIDI). Velocidad ×0,5 – ×1,25 y pausa. Calibra la latencia en «Ajustes de interpretación».
+  - **Dos manos:** dos pentagramas (Sol y Fa) y el piano se amplía al rango de la canción (con desplazamiento si es muy ancho). **Usa un teclado MIDI** para dos manos y acordes.
+  - Reglas exactas de puntuación: `docs/EVALUATION.md`.
 - **Playing**: igual que el programa original (piano, partitura, contadores, nota siguiente en naranja, micrófono, MIDI, teclado del ordenador). Nuevos: botones «← Menú» y «Catálogo»; el micrófono se puede **desactivar** pulsando de nuevo «Micrófono activo».
 - **Guardar como copia propia** (en la tarjeta de cada canción): crea una copia en `data/compositions/`. Las canciones precargadas son de solo lectura.
 - *Componer* (Fase 5) aparece en el menú pero deshabilitada.
@@ -37,11 +42,13 @@ Desarrollo con recarga: `npm run dev` (Vite en http://localhost:5173).
 shared/     Lógica musical pura (modelo, esquema, tiempo, evaluación). Se prueba en Node.
 backend/    Servidor local (Fastify) y biblioteca de archivos. backend/seed = las 4 canciones.
 frontend/   Interfaz (React + Vite + TypeScript).
-data/       TUS DATOS (no se versiona): songs/ compositions/ imports/ drafts/ backups/
+data/       TUS DATOS (no se versiona): songs/ compositions/ imports/ drafts/ backups/ trash/
 tests/      Pruebas automáticas y el HTML original de referencia.
 docs/       Arquitectura, modelo de datos, reglas de evaluación, límites del audio, pruebas manuales.
 ```
 **Ubicación de tus canciones:** `data/songs/` (precargadas e importadas) y `data/compositions/` (propias), un archivo `.json` por canción. Antes de sobrescribir una canción se guarda la versión anterior en `data/backups/<id>/` (se conservan las 10 últimas).
+
+**Recuperar una canción eliminada (a mano, con la aplicación cerrada):** dentro de `data/trash/<fecha>-<id>/` mueve `song.json` a `data/songs/<id>.json` (o a `data/compositions/<id>.json` si es una composición propia) y, si existe la carpeta `imports/`, muévela a `data/imports/<id>/`. Si había copias de seguridad, la carpeta `backups/` va a `data/backups/<id>/`. Después borra la carpeta vacía de `trash`. `trash/` no se vacía sola: puedes borrarla cuando quieras liberar espacio.
 
 **Copia de seguridad manual:** copia la carpeta `data/` entera. **Recuperar:** devuélvela a su sitio con la aplicación cerrada. (Exportación a zip desde la interfaz: Fase 7.)
 
@@ -52,11 +59,11 @@ Por seguridad la aplicación solo escribe en carpetas autorizadas. Copia `pianot
 Conéctalo por USB **antes** de abrir la página (o después: se detecta solo), usa Chrome/Edge y acepta el permiso de MIDI. La línea inferior de Playing muestra el dispositivo detectado.
 
 ## Micrófono
-Pulsa «Activar micrófono» y acepta el permiso. **Limitaciones de la Fase 1 (detector original):** una sola nota a la vez, rango aproximado Sol♯3–Do6, acepta la nota en cualquier octava y **nunca cuenta fallos**. Mejoras previstas en la Fase 3. Si usas altavoces, el sonido sintético de la app puede ser detectado por el micrófono.
+Pulsa «Activar micrófono», acepta el permiso y **no toques durante 1 s** (calibra el ruido ambiente). Detecta **una nota a la vez** (rango Mi2–Do7) y el instante de cada ataque; ya **no oculta las notas equivocadas** (cuentan como fallo, se puede desactivar en los ajustes). No puede medir la duración de las notas ni comprobar acordes (en un acorde basta con una de sus notas, y se avisa). Para el modo Ritmo, dos manos y acordes, **usa un teclado MIDI**. La precisión con un piano acústico real **no está medida**: ver `docs/AUDIO_INPUT.md` y las pruebas manuales 33–36. Si usas altavoces con el teclado del ordenador, el sonido de la app puede ser detectado por el micrófono.
 
 ## Pruebas
 ```
-npm test          # 197 pruebas automáticas
+npm test          # 338 pruebas automáticas
 npm run typecheck
 ```
 Las pruebas con hardware real están en `docs/MANUAL_TESTS.md`.

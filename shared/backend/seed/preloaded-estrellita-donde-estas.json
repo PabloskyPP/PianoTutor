@@ -1,0 +1,867 @@
+{
+  "schemaVersion": 1,
+  "id": "preloaded-estrellita-donde-estas",
+  "title": "Estrellita, ¿dónde estás?",
+  "genre": "Infantil",
+  "hands": 1,
+  "difficulty": 1,
+  "origin": "preloaded",
+  "createdAt": "2026-11-17T00:00:00.000Z",
+  "modifiedAt": "2026-11-17T00:00:00.000Z",
+  "revision": 1,
+  "ppq": 960,
+  "tempoMap": [
+    {
+      "tick": 0,
+      "bpm": 90
+    }
+  ],
+  "timeSignatures": [
+    {
+      "tick": 0,
+      "num": 4,
+      "den": 4
+    }
+  ],
+  "keySignatures": [
+    {
+      "tick": 0,
+      "fifths": 0,
+      "mode": "major"
+    }
+  ],
+  "measures": [
+    {
+      "index": 0,
+      "startTick": 0,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 1,
+      "startTick": 3840,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 2,
+      "startTick": 7680,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 3,
+      "startTick": 11520,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 4,
+      "startTick": 15360,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 5,
+      "startTick": 19200,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 6,
+      "startTick": 23040,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 7,
+      "startTick": 26880,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 8,
+      "startTick": 30720,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 9,
+      "startTick": 34560,
+      "lengthTicks": 3840
+    },
+    {
+      "index": 10,
+      "startTick": 38400,
+      "lengthTicks": 3840,
+      "incomplete": true
+    }
+  ],
+  "parts": [
+    {
+      "id": "P1",
+      "name": "Melodía",
+      "staves": [
+        {
+          "index": 0,
+          "clef": "G",
+          "hand": "right",
+          "events": [
+            {
+              "id": "e0",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 60,
+                    "step": "C",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 0,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 0
+            },
+            {
+              "id": "e1",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 60,
+                    "step": "C",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 960,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 0
+            },
+            {
+              "id": "e2",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 1920,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 0
+            },
+            {
+              "id": "e3",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 2880,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 0
+            },
+            {
+              "id": "e4",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 69,
+                    "step": "A",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 3840,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 1
+            },
+            {
+              "id": "e5",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 69,
+                    "step": "A",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 4800,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 1
+            },
+            {
+              "id": "e6",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 5760,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 1
+            },
+            {
+              "id": "e7",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 65,
+                    "step": "F",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 6720,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 1
+            },
+            {
+              "id": "e8",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 65,
+                    "step": "F",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 7680,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 2
+            },
+            {
+              "id": "e9",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 64,
+                    "step": "E",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 8640,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 2
+            },
+            {
+              "id": "e10",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 64,
+                    "step": "E",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 9600,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 2
+            },
+            {
+              "id": "e11",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 62,
+                    "step": "D",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 10560,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 2
+            },
+            {
+              "id": "e12",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 62,
+                    "step": "D",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 11520,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 3
+            },
+            {
+              "id": "e13",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 60,
+                    "step": "C",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 12480,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 3
+            },
+            {
+              "id": "e14",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 13440,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 3
+            },
+            {
+              "id": "e15",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 14400,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 3
+            },
+            {
+              "id": "e16",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 65,
+                    "step": "F",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 15360,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 4
+            },
+            {
+              "id": "e17",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 65,
+                    "step": "F",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 16320,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 4
+            },
+            {
+              "id": "e18",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 64,
+                    "step": "E",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 17280,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 4
+            },
+            {
+              "id": "e19",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 64,
+                    "step": "E",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 18240,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 4
+            },
+            {
+              "id": "e20",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 62,
+                    "step": "D",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 19200,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 5
+            },
+            {
+              "id": "e21",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 20160,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 5
+            },
+            {
+              "id": "e22",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 21120,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 5
+            },
+            {
+              "id": "e23",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 65,
+                    "step": "F",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 22080,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 5
+            },
+            {
+              "id": "e24",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 65,
+                    "step": "F",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 23040,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 6
+            },
+            {
+              "id": "e25",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 64,
+                    "step": "E",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 24000,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 6
+            },
+            {
+              "id": "e26",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 64,
+                    "step": "E",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 24960,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 6
+            },
+            {
+              "id": "e27",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 62,
+                    "step": "D",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 25920,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 6
+            },
+            {
+              "id": "e28",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 60,
+                    "step": "C",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 26880,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 7
+            },
+            {
+              "id": "e29",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 60,
+                    "step": "C",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 27840,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 7
+            },
+            {
+              "id": "e30",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 28800,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 7
+            },
+            {
+              "id": "e31",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 29760,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 7
+            },
+            {
+              "id": "e32",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 69,
+                    "step": "A",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 30720,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 8
+            },
+            {
+              "id": "e33",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 69,
+                    "step": "A",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 31680,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 8
+            },
+            {
+              "id": "e34",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 67,
+                    "step": "G",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 32640,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 8
+            },
+            {
+              "id": "e35",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 65,
+                    "step": "F",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 33600,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 8
+            },
+            {
+              "id": "e36",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 65,
+                    "step": "F",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 34560,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 9
+            },
+            {
+              "id": "e37",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 64,
+                    "step": "E",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 35520,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 9
+            },
+            {
+              "id": "e38",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 64,
+                    "step": "E",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 36480,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 9
+            },
+            {
+              "id": "e39",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 62,
+                    "step": "D",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 37440,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 9
+            },
+            {
+              "id": "e40",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 62,
+                    "step": "D",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 38400,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 10
+            },
+            {
+              "id": "e41",
+              "type": "note",
+              "pitches": [
+                {
+                  "pitch": {
+                    "midi": 60,
+                    "step": "C",
+                    "alter": 0,
+                    "octave": 4
+                  }
+                }
+              ],
+              "tick": 39360,
+              "durationTicks": 960,
+              "voice": 1,
+              "measure": 10
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "provisional": {
+    "metadata": true,
+    "rhythm": true,
+    "note": "Género, dificultad, ritmo (todas negras), compás 4/4 y tempo 90 BPM son valores PROVISIONALES asignados en la migración: el HTML original solo contenía la secuencia de alturas. No son el ritmo real de la obra."
+  }
+}

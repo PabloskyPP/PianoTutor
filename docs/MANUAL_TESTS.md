@@ -27,3 +27,25 @@ Ficheros de ejemplo en `tests/fixtures/` (**sintéticos**, generados por `script
 20. [ ] Importa una canción con notas muy graves/agudas (fuera de Do4–Do6): el piano de Playing se amplía y todas se pueden tocar; si salen del pentagrama visible aparece el aviso.
 21. [ ] Catálogo: buscador (con y sin acentos), «Limpiar búsqueda», filtros combinados, mensaje cuando no hay resultados, orden alfabético.
 22. [ ] Cancelar en «Añadir» vacía el formulario sin tocar el catálogo.
+23. [ ] Catálogo → abrir una canción importada o una copia propia → «Eliminar canción» → «Cancelar»: no pasa nada. Repetir y «Sí, eliminar»: desaparece, aparece el aviso con la ruta de `data/trash`, y tras cerrar y abrir la app sigue sin estar.
+24. [ ] Abrir una canción precargada: «Eliminar canción» está desactivado y explica por qué.
+25. [ ] Recuperar una eliminada siguiendo las instrucciones del README: con la app cerrada, mueve los archivos y comprueba que vuelve al catálogo y se puede tocar. *(En Windows, comprueba además que eliminar no falla por el antivirus.)*
+
+# Pruebas manuales de la Fase 3 (pendientes de ejecutar por ti: necesitan navegador, teclado MIDI y/o piano acústico)
+Resultado esperado de cada una en negrita. **Anota cualquier diferencia: es información real que yo no tengo.**
+
+26. [ ] **Aspecto de Playing a una mano:** abre `tests/regression/original/piano-tutor.html` y la app (una canción de una mano, modo Aprendizaje). **Sin diferencias visibles** salvo los botones «← Menú»/«Catálogo», el selector de modo y el plegable «Ajustes de interpretación». (El dibujo de la partitura ya está comprobado píxel a píxel contra el original; esto comprueba la página completa y el CSS.)
+27. [ ] **Dos manos, Aprendizaje, teclado MIDI:** importa `estudio-dos-manos.musicxml` (o `dos-manos.mid`) y tócala. **Dos pentagramas (Sol y Fa) con las notas simultáneas alineadas; el piano se amplía; las notas de ambas manos se iluminan a la vez; el evento avanza al completarse en cualquier orden.** Comprueba que la clave de Fa se ve bien asentada.
+28. [ ] **Acordes:** toca un acorde tocando las notas con un poco de separación (< 150 ms) y otro tocándolas una a una (> 150 ms). **Ambos avanzan; el segundo se anota como «acordes tocados por separado» sin penalizar.**
+29. [ ] **Modo Ritmo con MIDI:** elige «Ritmo» → «Empezar». **Cuenta previa (un compás de clics) y luego la canción; la partitura se desplaza de forma continua.** Toca bien, toca pronto, toca tarde, no toques una nota y toca una equivocada: **verde / dorado con «Pronto/Tarde (± ms)» / roja «Omitida» / «Nota equivocada»; el resumen final cuadra con el detalle.**
+30. [ ] **Calibración de latencia (MIDI):** en «Ajustes de interpretación» → «Calibrar latencia» y sigue los 8 clics. **Aparece un valor en ms; repítela 3 veces: deben ser parecidos (±20 ms).** Si salen muy distintos, anótalo. Comprueba que con ese valor el modo Ritmo te sitúa «a tiempo» al tocar con el clic.
+31. [ ] **Velocidad y pausa:** velocidades ×0,5/×0,75/×1/×1,25 (se bloquean mientras juegas); «Pausa» detiene partitura y clics, «Reanudar» continúa sin saltos ni omisiones.
+32. [ ] **Pedal de sustain:** en una nota larga, suelta la tecla con el pedal pulsado. **La duración no se evalúa («no evaluable»).** Sin pedal, soltar pronto cuenta «duración corta» (no suma fallos).
+33. [ ] **Micrófono con piano acústico (notas sueltas):** «Activar micrófono» y **no toques durante 1 s** (calibración). Toca una melodía lenta de una mano, incluyendo notas repetidas, graves (Mi2–Do3) y agudas (Do6–Do7). **Anota: qué notas no se detectan, cuántos «fallos» aparecen sin que te hayas equivocado, y el retraso que notas.** Si hay muchos falsos fallos prueba «Recalibrar ruido» y la sensibilidad, o desactiva «contar fallos del micrófono».
+34. [ ] **Micrófono con acordes / dos manos:** **aparece el aviso de fiabilidad baja; basta una nota del acorde; las demás quedan «sin verificar».**
+35. [ ] **Micrófono en modo Ritmo:** **aviso de menor precisión temporal; tolerancia ampliada.** Anota si las omisiones falsas son frecuentes (si lo son, el retraso de entrega de 120 ms o la tolerancia necesitan ajuste: dímelo).
+36. [ ] **Liberación:** con el micrófono activo, cambia de canción, de modo y de pantalla; desactívalo pulsando de nuevo el botón. **El indicador de grabación del navegador desaparece en cada caso.**
+37. [ ] **Ajustes persistentes:** cambia perfil, latencia y sensibilidad; cierra y reabre la aplicación. **Se conservan** (`data/settings.json`).
+38. [ ] **Canal MIDI:** con un teclado que permita elegir canal, fija el canal 3 en la app: **solo suena/puntúa lo enviado por el canal 3.**
+39. [ ] **Rendimiento:** canción larga en modo Ritmo con micrófono activo. **Animación fluida y CPU moderada (mira el administrador de tareas).**
+40. [ ] **Piano ancho:** importa una canción de dos manos con rango de 5+ octavas. **El piano aparece con barra de desplazamiento horizontal y se centra solo en las teclas pendientes.**

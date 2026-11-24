@@ -38,3 +38,16 @@ label.confirm{margin-top:12px;padding:10px 12px;border:1px solid var(--next);bor
 .paper{background:var(--paper);border-radius:10px;padding:8px;overflow-x:auto;min-height:60px}
 .pager{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:10px;color:var(--mute)}
 .meta{color:var(--mute);margin:2px 0 10px}
+button.danger{border-color:var(--bad);color:#f0a19e}
+button.danger:hover:not(:disabled){background:#3a2326;border-color:var(--bad)}
+button.danger.solid{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:600}
+.kbscroll{overflow-x:auto;padding-bottom:8px}
+.w.warn{background:#f2d98a}.b.warn{background:#c9a227}
+.score.grand canvas{height:340px}
+details.adv{margin-top:14px;background:var(--panel);border-radius:10px;padding:10px 14px}
+details.adv summary{cursor:pointer;color:var(--mute)}
+.prefs{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end;margin-top:10px}
+.prefs label{display:flex;flex-direction:column;gap:4px;color:var(--mute);font-size:13px}
+.prefs label.check{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14px}
+.prefs input[type=number]{min-width:0;width:90px}.prefs input[type=range]{min-width:0;padding:0;width:140px}
+.stats small{color:var(--mute)}

@@ -52,7 +52,7 @@ describe('MIDI', () => {
     const h = new InputHub(), ev = collect(h), status = vi.fn(); const off = connectMidi(h, status);
     await vi.waitFor(() => expect(input.onmidimessage).toBeTruthy());
     send(input, 0x92, 60, 100); send(input, 0x82, 60, 0); send(input, 0x90, 62, 80); send(input, 0x90, 62, 0); send(input, 0xB0, 64, 127);
-    expect(ev.map((e) => [e.kind, e.midi, e.channel, e.velocity])).toEqual([['on', 60, 2, 100], ['off', 60, 2, undefined], ['on', 62, 0, 80], ['off', 62, 0, undefined]]);
+    expect(ev.map((e) => [e.kind, e.midi, e.channel, e.velocity])).toEqual([['on', 60, 2, 100], ['off', 60, 2, undefined], ['on', 62, 0, 80], ['off', 62, 0, undefined], ['sustain', 0, 0, undefined]]);   // CC64 = pedal: desde la Fase 3 se emite (antes se ignoraba)
     expect(status).toHaveBeenLastCalledWith({ supported: true, denied: false, devices: ['Piano de prueba'] });
     off(); expect(input.onmidimessage).toBeNull(); expect(access.onstatechange).toBeNull();
   });
@@ -71,5 +71,20 @@ describe('MIDI', () => {
     const { input, access } = fakeAccess(); let resolve!: (a: any) => void; (navigator as any).requestMIDIAccess = () => new Promise((r) => { resolve = r; });
     const off = connectMidi(new InputHub(), () => {}); off(); resolve(access); await Promise.resolve(); await Promise.resolve();
     expect(input.onmidimessage).toBeNull();
+  });
+});
+
+describe('MIDI: pedal y canal (Fase 3)', () => {
+  const fake = () => { const input: any = { name: 'P', onmidimessage: null }; const access: any = { inputs: new Map([['1', input]]), onstatechange: null }; (navigator as any).requestMIDIAccess = () => Promise.resolve(access); return input; };
+  const send = (input: any, ...d: number[]) => input.onmidimessage({ data: Uint8Array.from(d), timeStamp: 7 });
+  it('el pedal de sustain (CC64) se emite como evento aparte: pulsado desde 64', async () => {
+    const input = fake(); const h = new InputHub(), ev = collect(h); const off = connectMidi(h, () => {}); await vi.waitFor(() => expect(input.onmidimessage).toBeTruthy());
+    send(input, 0xb0, 64, 127); send(input, 0xb0, 64, 63); send(input, 0xb0, 64, 64); send(input, 0xb0, 7, 100);
+    expect(ev.map((e) => [e.kind, e.down])).toEqual([['sustain', true], ['sustain', false], ['sustain', true]]); off();
+  });
+  it('filtro de canal: 0 = todos; N = solo ese canal (1–16), cambiable en vivo', async () => {
+    const input = fake(); let ch = 0; const h = new InputHub(), ev = collect(h); const off = connectMidi(h, () => {}, () => ch); await vi.waitFor(() => expect(input.onmidimessage).toBeTruthy());
+    send(input, 0x90, 60, 90); send(input, 0x93, 62, 90); ch = 4; send(input, 0x90, 64, 90); send(input, 0x93, 65, 90); send(input, 0xb3, 64, 127);
+    expect(ev.map((e) => e.midi)).toEqual([60, 62, 65, 0]); expect(ev.map((e) => e.kind)).toEqual(['on', 'on', 'on', 'sustain']); off();
   });
 });

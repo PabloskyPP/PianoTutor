@@ -5,7 +5,8 @@ import fastifyStatic from '@fastify/static';
 import { LibraryRepository } from './library/repository';
 import { LibraryError } from './library/errors';
 import { writeFileAtomic } from './library/atomic';
-import { MAX_BODY_BYTES, type Settings } from './config';
+import { MAX_BODY_BYTES, readSettings, type Settings } from './config';
+import { DEFAULT_PREFERENCES, mergePreferences, sanitizePreferences } from '@pianotutor/shared';
 import { previewImport, prepareImport } from './library/importService';
 
 export interface AppDeps {
@@ -44,11 +45,9 @@ export async function createApp(deps: AppDeps): Promise<FastifyInstance> {
 
   app.get('/api/songs', async () => deps.repo.list());
   app.get<{ Params: { id: string } }>('/api/songs/:id', async (req) => deps.repo.get(req.params.id));
-  app.put<{ Params: { id: string } }>('/api/songs/:id', async (req) => {
-    const raw = req.headers['if-match'];
-    const rev = typeof raw === 'string' && /^"?\d+"?$/.test(raw) ? Number(raw.replace(/"/g, '')) : undefined;
-    return deps.repo.update(req.params.id, req.body, rev);
-  });
+  const revisionOf = (raw: unknown) => (typeof raw === 'string' && /^"?\d+"?$/.test(raw) ? Number(raw.replace(/"/g, '')) : undefined);
+  app.put<{ Params: { id: string } }>('/api/songs/:id', async (req) => deps.repo.update(req.params.id, req.body, revisionOf(req.headers['if-match'])));
+  app.delete<{ Params: { id: string } }>('/api/songs/:id', async (req) => deps.repo.delete(req.params.id, revisionOf(req.headers['if-match'])));
   app.post<{ Params: { id: string }; Body: { title?: unknown } }>('/api/songs/:id/save-as', async (req, reply) => {
     const song = await deps.repo.saveAs(req.params.id, (req.body as { title?: unknown } | undefined)?.title);
     return reply.code(201).send(song);
@@ -64,17 +63,39 @@ export async function createApp(deps: AppDeps): Promise<FastifyInstance> {
     return reply.code(201).send(await deps.repo.createImported(song, bytes, ext));
   });
 
-  // Ajustes: el navegador solo elige entre raíces ya autorizadas, por índice; nunca envía rutas.
+  // settings.json: lectura-modificación-escritura serializada (así un cambio no borra otras claves ni dos peticiones se pisan).
+  let queue: Promise<unknown> = Promise.resolve();
+  const updateSettings = <T>(fn: (s: Settings) => { next: Settings; result: T }): Promise<T> => {
+    const run = queue.then(async () => {
+      const { next, result } = fn(readSettings(deps.settingsFile));
+      await fs.promises.mkdir(path.dirname(deps.settingsFile), { recursive: true });
+      await writeFileAtomic(deps.settingsFile, JSON.stringify(next, null, 2) + '\n');
+      return result;
+    });
+    queue = run.catch(() => undefined);
+    return run;
+  };
+
+  // Ajustes de biblioteca: el navegador solo elige entre raíces ya autorizadas, por índice; nunca envía rutas.
   app.get('/api/settings', async () => ({
     roots: deps.roots.map((p, index) => ({ index, path: p, active: p === deps.repo.root })),
   }));
   app.put<{ Body: { rootIndex?: unknown } }>('/api/settings', async (req) => {
     const i = (req.body as { rootIndex?: unknown } | undefined)?.rootIndex;
     if (typeof i !== 'number' || !Number.isInteger(i) || i < 0 || i >= deps.roots.length) throw new LibraryError('INVALID', 'Biblioteca no autorizada.');
-    const s: Settings = { libraryRoot: deps.roots[i]! };
-    await fs.promises.mkdir(path.dirname(deps.settingsFile), { recursive: true });
-    await writeFileAtomic(deps.settingsFile, JSON.stringify(s, null, 2) + '\n');
-    return { restartRequired: s.libraryRoot !== deps.repo.root };
+    return updateSettings((cur) => ({ next: { ...cur, libraryRoot: deps.roots[i]! }, result: { restartRequired: deps.roots[i] !== deps.repo.root } }));
+  });
+
+  // Preferencias de interpretación (tolerancias, latencia, micrófono…). Un archivo dañado o antiguo vuelve a los valores por defecto campo a campo.
+  app.get('/api/preferences', async () => ({ preferences: sanitizePreferences(readSettings(deps.settingsFile).preferences ?? DEFAULT_PREFERENCES) }));
+  app.put('/api/preferences', async (req) => {
+    const patch = req.body;
+    // Se valida contra las preferencias actuales ANTES de escribir; si falla, no se toca el archivo.
+    return updateSettings((cur) => {
+      const m = mergePreferences(sanitizePreferences(cur.preferences), patch);
+      if (!m.ok) throw new LibraryError('INVALID', 'Preferencias no válidas.', m.errors);
+      return { next: { ...cur, preferences: m.value }, result: { preferences: m.value } };
+    });
   });
 
   if (deps.staticDir && fs.existsSync(path.join(deps.staticDir, 'index.html'))) {

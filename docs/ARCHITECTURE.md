@@ -24,3 +24,14 @@ Ver `DATA_MODEL.md` y la sección de almacenamiento del README.
 - El **servidor** analiza los archivos (`shared/import`), tanto en la previsualización como al guardar: el navegador nunca envía una canción ya construida, y el análisis no bloquea la interfaz (sí puede bloquear brevemente el servidor con archivos muy grandes).
 - `score/toVexSpec.ts` (puro, probado en Node) convierte el modelo en una especificación de dibujo; `score/VexScore.tsx` la dibuja con VexFlow. **Playing sigue usando el renderer canvas portado del original**, no VexFlow.
 - La página «Añadir canción» se carga de forma diferida (VexFlow pesa ~0,8 MB) para no penalizar a Playing.
+
+## Eliminación de canciones
+`LibraryRepository.delete` **mueve** (no borra) a `data/trash/<fecha>-<id>/`: `song.json`, `imports/` y, si existen, `backups/` y `draft.json`. Exige `If-Match` (revisión) y rechaza las precargadas. Si falla a medias, deshace lo movido. `trash/` no se escanea al listar el catálogo. Los reintentos ante `EPERM/EBUSY` cubren los bloqueos de antivirus en Windows (sin probar allí).
+
+## Interpretación (Fase 3)
+- **Evaluación** pura en `shared/evaluation` (Aprendizaje y Ritmo); la interfaz solo traduce juicios a colores y contadores. **Tiempo** en `frontend/audio` (`clock`, `transport`, `beats`, `calibrate`), con reloj inyectable para pruebas.
+- **Playing** (`PlayingPage`) conecta `InputHub` → sesión del modo activo → `ScrollScoreRenderer` y piano. `PlayingView` conserva el DOM original; lo añadido lleva `data-added`.
+- **Partitura de Playing** (`ScrollScoreRenderer`, canvas): una mano idéntica píxel a píxel al `draw()` original (prueba `tests/regression/score-parity.test.ts`); acordes; colores por resultado; desplazamiento continuo en Ritmo; **dos pentagramas** (Sol/Fa, notas simultáneas alineadas) cuando la canción es de dos manos.
+- **Piano:** rango ampliado por octavas a la canción (≥ Do4–Do6; ≥ Do3–Do6 a dos manos); con más de 35 teclas blancas se envuelve en un contenedor con desplazamiento horizontal que centra las teclas pendientes.
+- **Preferencias:** `GET/PUT /api/preferences` (validadas con Zod, guardado serializado en `data/settings.json` sin pisar `libraryRoot`).
+- **Pruebas visuales:** `@napi-rs/canvas` (solo desarrollo) permite ejecutar los canvas en Node. Efecto colateral: jsdom lo detecta y ofrece un canvas real, por lo que VexFlow mide texto de verdad en las pruebas.

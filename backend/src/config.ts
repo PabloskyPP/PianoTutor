@@ -28,7 +28,7 @@ export function loadAuthorizedRoots(env = process.env, repoRoot = REPO_ROOT): st
   return [...new Set(roots)];
 }
 
-export interface Settings { libraryRoot?: string }
+export interface Settings { libraryRoot?: string; preferences?: unknown }
 
 /** settings.json vive siempre en <proyecto>/data (no depende de la biblioteca elegida). */
 export const settingsPath = (repoRoot = REPO_ROOT) => path.join(repoRoot, 'data', 'settings.json');

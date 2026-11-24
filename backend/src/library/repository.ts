@@ -8,7 +8,8 @@ import { writeFileAtomic, type AtomicOptions } from './atomic';
 
 export interface ListResult { songs: SongSummary[]; errors: { file: string; message: string }[] }
 export interface RepoOptions { seedDir?: string; backupsToKeep?: number; atomic?: AtomicOptions }
-const SUBDIRS = ['songs', 'compositions', 'imports', 'drafts', 'backups'] as const;
+const SUBDIRS = ['songs', 'compositions', 'imports', 'drafts', 'backups', 'trash'] as const;
+const RETRYABLE = new Set(['EPERM', 'EBUSY', 'EACCES']);
 
 export class LibraryRepository {
   private lockPath: string;
@@ -137,6 +138,45 @@ export class LibraryRepository {
     try { await writeFileAtomic(file, JSON.stringify(v.song, null, 2) + '\n', { ...this.opts.atomic }); }
     catch (e) { throw ioError(e, 'guardar la copia'); }
     return v.song;
+  }
+
+  /**
+   * Elimina una canción del catálogo MOVIÉNDOLA a data/trash/<fecha>-<id>/ (song.json, imports/, y si existen backups/ y draft.json).
+   * No es un borrado definitivo: se puede recuperar a mano. Las precargadas no se pueden eliminar. Exige la revisión (If-Match).
+   * Si algo falla a medias, se deshace lo ya movido y la canción queda como estaba.
+   */
+  async delete(id: string, ifMatchRevision: number | undefined): Promise<{ id: string; title: string; trashedAs: string }> {
+    assertValidId(id);
+    const song = await this.get(id);
+    if (song.origin === 'preloaded') throw new LibraryError('READ_ONLY', 'Las canciones precargadas no se pueden eliminar. Si quieres una versión distinta, usa «Guardar como copia propia».');
+    if (ifMatchRevision === undefined) throw new LibraryError('INVALID', 'Falta la revisión (If-Match).');
+    if (ifMatchRevision !== song.revision) throw new LibraryError('CONFLICT', 'La canción cambió desde que la viste. Recarga el catálogo antes de eliminarla.');
+    const entry = `${new Date().toISOString().replace(/[:.]/g, '-')}-${id}`;
+    const trash = resolveInside(this.root, 'trash', entry);
+    const rename = this.opts.atomic?.rename ?? ((a: string, b: string) => fs.promises.rename(a, b));
+    const mv = async (from: string, to: string) => {
+      for (let i = 0; ; i++) {
+        try { await rename(from, to); return; }
+        catch (e) { const c = (e as NodeJS.ErrnoException).code; if (i < 5 && c && RETRYABLE.has(c)) { await new Promise((r) => setTimeout(r, 40 * (i + 1))); continue; } throw e; }
+      }
+    };
+    const moved: [string, string][] = [];
+    try {
+      await fs.promises.mkdir(trash, { recursive: true });
+      const imp = resolveInside(this.root, 'imports', id);
+      if (fs.existsSync(imp)) { await mv(imp, path.join(trash, 'imports')); moved.push([imp, path.join(trash, 'imports')]); }
+      const file = this.fileFor(song);
+      await mv(file, path.join(trash, 'song.json')); moved.push([file, path.join(trash, 'song.json')]);
+    } catch (e) {
+      for (const [from, to] of moved.reverse()) await fs.promises.rename(to, from).catch(() => {});
+      await fs.promises.rm(trash, { recursive: true, force: true }).catch(() => {});
+      throw ioError(e, 'eliminar la canción');
+    }
+    // Lo accesorio se mueve «si se puede»: un fallo aquí no revierte la eliminación.
+    for (const [from, to] of [[resolveInside(this.root, 'backups', id), path.join(trash, 'backups')], [resolveInside(this.root, 'drafts', `${id}.draft.json`), path.join(trash, 'draft.json')]] as const) {
+      try { if (fs.existsSync(from)) await mv(from, to); } catch { /* se queda donde está */ }
+    }
+    return { id, title: song.title, trashedAs: `trash/${entry}` };
   }
 
   /** Guarda una canción importada junto con el archivo original (data/imports/<id>/original.<ext>). Si algo falla, no queda nada a medias. */

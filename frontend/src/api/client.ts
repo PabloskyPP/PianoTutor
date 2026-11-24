@@ -1,4 +1,4 @@
-import type { PreviewResult, QuantGrid, HandMode, Song, SongSummary } from '@pianotutor/shared';
+import type { Preferences, PreferencesPatch, PreviewResult, QuantGrid, HandMode, Song, SongSummary } from '@pianotutor/shared';
 
 export class ApiError extends Error {
   constructor(message: string, readonly status = 0, readonly details?: string[]) { super(message); }
@@ -21,6 +21,8 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 export const api = {
   listSongs: () => request<ListResponse>('/api/songs'),
   getSong: (id: string) => request<Song>(`/api/songs/${encodeURIComponent(id)}`),
+  /** Mueve la canción a data/trash (no es un borrado definitivo). Exige la revisión que ve el usuario. */
+  deleteSong: (id: string, revision: number) => request<{ id: string; title: string; trashedAs: string }>(`/api/songs/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'if-match': String(revision) } }),
   saveAs: (id: string, title: string) => request<Song>(`/api/songs/${encodeURIComponent(id)}/save-as`, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ title }),
   }),
@@ -36,4 +38,9 @@ export const importApi = {
     request<PreviewResult>(`/api/import/preview?${qs({ ...p })}`, { method: 'POST', headers: OCTET, body: bytes, ...(signal ? { signal } : {}) }),
   save: (bytes: ArrayBuffer, p: ImportParams, m: ImportMeta) =>
     request<Song>(`/api/import?${qs({ ...p, title: m.title, genre: m.genre, difficulty: m.difficulty, confirmHands: m.confirmHands })}`, { method: 'POST', headers: OCTET, body: bytes }),
+};
+
+export const prefsApi = {
+  get: () => request<{ preferences: Preferences }>('/api/preferences'),
+  put: (patch: PreferencesPatch) => request<{ preferences: Preferences }>('/api/preferences', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(patch) }),
 };

@@ -81,7 +81,9 @@ export function CatalogPage() {
                   <td><button className="link" aria-expanded={sel === s.id} onClick={() => setSel(sel === s.id ? null : s.id)}>{s.title}</button></td>
                   <td>{s.genre}</td><td>{s.hands === 1 ? 'A una mano' : 'A dos manos'}</td><td>{s.difficulty}</td>
                 </tr>
-                {sel === s.id && <tr className="detail"><td colSpan={4}><SongCard song={s} onSaved={async (t) => { setStatus(`Canción guardada: «${t}»`); await load(); }} /></td></tr>}
+                {sel === s.id && <tr className="detail"><td colSpan={4}><SongCard song={s}
+                  onSaved={async (t) => { setStatus(`Canción guardada: «${t}»`); await load(); }}
+                  onDeleted={async (t) => { setSel(null); setStatus(`Canción eliminada: «${t}». Se movió a la carpeta data/trash (se puede recuperar a mano).`); await load(); }} /></td></tr>}
               </Fragment>
             ))}
           </tbody>
@@ -91,10 +93,17 @@ export function CatalogPage() {
   );
 }
 
-function SongCard({ song, onSaved }: { song: SongSummary; onSaved: (title: string) => Promise<void> }) {
+function SongCard({ song, onSaved, onDeleted }: { song: SongSummary; onSaved: (title: string) => Promise<void>; onDeleted: (title: string) => Promise<void> }) {
   const [title, setTitle] = useState(`${song.title} (copia)`);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const protectedSong = song.origin === 'preloaded';
+  const remove = async () => {
+    setBusy(true); setErr('');
+    try { const r = await api.deleteSong(song.id, song.revision); await onDeleted(r.title); }
+    catch (e) { setErr((e as Error).message); setConfirming(false); } finally { setBusy(false); }
+  };
   const save = async () => {
     setBusy(true); setErr('');
     try { const s = await api.saveAs(song.id, title); await onSaved(s.title); }
@@ -112,6 +121,19 @@ function SongCard({ song, onSaved }: { song: SongSummary; onSaved: (title: strin
         <input aria-label="Título de la copia" value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} />
         <button disabled={busy || !title.trim()} onClick={() => void save()}>Guardar como copia propia</button>
       </div>
+      <div className="bar">
+        {!confirming && <button className="danger" disabled={protectedSong || busy} onClick={() => setConfirming(true)} aria-describedby={protectedSong ? `prot-${song.id}` : undefined}>Eliminar canción</button>}
+        {protectedSong && <span id={`prot-${song.id}`} className="meta">Las canciones precargadas no se pueden eliminar.</span>}
+      </div>
+      {confirming && (
+        <div className="notice bad" role="alertdialog" aria-label="Confirmar eliminación">
+          <p><b>¿Eliminar «{song.title}»?</b> Desaparecerá del catálogo y se moverá a la carpeta <code>data/trash</code> junto con su archivo original (si lo tiene). La aplicación no puede deshacerlo, pero puedes recuperarla a mano.</p>
+          <div className="bar">
+            <button className="danger solid" disabled={busy} onClick={() => void remove()}>{busy ? 'Eliminando…' : 'Sí, eliminar'}</button>
+            <button disabled={busy} onClick={() => setConfirming(false)}>Cancelar</button>
+          </div>
+        </div>
+      )}
       {err && <p className="notice bad" role="alert">{err}</p>}
     </div>
   );

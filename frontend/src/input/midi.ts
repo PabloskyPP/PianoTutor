@@ -3,13 +3,17 @@ import type { InputHub } from './hub';
 export interface MidiStatus { supported: boolean; denied: boolean; devices: string[] }
 
 /** Entrada MIDI: Note On/Off (Note On con velocidad 0 = Off), canal y velocidad. Devuelve la función de baja. */
-export function connectMidi(hub: InputHub, onStatus: (s: MidiStatus) => void): () => void {
+/** `getChannel` (opcional) devuelve el canal 1–16 aceptado, o 0 para todos; se consulta en cada mensaje, así se puede cambiar en vivo. */
+export function connectMidi(hub: InputHub, onStatus: (s: MidiStatus) => void, getChannel?: () => number): () => void {
   let disposed = false;
   let access: MIDIAccess | undefined;
   const handler = (e: MIDIMessageEvent) => {
     const d = e.data; if (!d || d.length < 2) return;
     const status = d[0]! & 0xf0, channel = d[0]! & 0x0f, midi = d[1]!, vel = d[2] ?? 0;
     const tMs = e.timeStamp || performance.now();
+    const want = getChannel?.() ?? 0;
+    if (want > 0 && channel + 1 !== want) return;
+    if (status === 0xb0 && midi === 64) { hub.emit({ kind: 'sustain', midi: 0, tMs, source: 'midi', channel, down: vel >= 64 }); return; }
     if (status === 0x90 && vel > 0) hub.emit({ kind: 'on', midi, tMs, source: 'midi', velocity: vel, channel });
     else if (status === 0x80 || (status === 0x90 && vel === 0)) hub.emit({ kind: 'off', midi, tMs, source: 'midi', channel });
   };
